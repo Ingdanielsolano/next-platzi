@@ -1,19 +1,30 @@
 /* eslint-disable @next/next/no-img-element */
-const people = [
-  {
-    name: "Jane Cooper",
-    title: "Regional Paradigm Technician",
-    department: "Optimization",
-    role: "Admin",
-    email: "jane.cooper@example.com",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-  },
-];
+
+import Loading from "@common/Loading";
+import Pagination from "@common/Pagination";
+import useFetch from "@hooks/useFetch";
+import endpoints from "@services/api";
+import { useState } from "react";
+
+// const people = [
+//   {
+//     name: "Jane Cooper",
+//     title: "Regional Paradigm Technician",
+//     department: "Optimization",
+//     role: "Admin",
+//     email: "jane.cooper@example.com",
+//     image:
+//       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
+//   },
+// ];
 
 export default function Dashboard() {
+  const [page, setPage] = useState(0);
+  const [loader, setLoader] = useState(false);
+  const products = useFetch(endpoints.products.getProducts(5, page), setLoader);
   return (
     <>
+      {loader && <Loading />}
       <div className="flex flex-col">
         <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -31,19 +42,19 @@ export default function Dashboard() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Title
+                      Category
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Status
+                      Price
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Role
+                      Id
                     </th>
                     <th scope="col" className="relative px-6 py-3">
                       <span className="sr-only">Edit</span>
@@ -51,42 +62,43 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {people.map((person) => (
-                    <tr key={person.email}>
+                  {products.map((product) => (
+                    <tr key={`Product-item-${product.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             <img
                               className="h-10 w-10 rounded-full"
-                              src={person.image}
+                              src={
+                                product.images?.length > 0
+                                  ? product.images[0]
+                                  : "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60"
+                              }
                               alt="avatar"
                             />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {person.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {person.email}
+                              {product.title}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {person.title}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {person.department}
+                          {product.category.name}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
+                          {new Intl.NumberFormat("es-US", {
+                            style: "currency",
+                            currency: "USD",
+                          }).format(product.price)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {person.role}
+                        {product.id}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <a
@@ -100,6 +112,11 @@ export default function Dashboard() {
                   ))}
                 </tbody>
               </table>
+              <Pagination
+                page={page}
+                setPage={setPage}
+                hasMore={products.length > 0}
+              />
             </div>
           </div>
         </div>
