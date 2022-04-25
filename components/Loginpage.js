@@ -1,25 +1,48 @@
 /* eslint-disable @next/next/no-img-element */
+import Loading from "@common/Loading";
+import Toast from "@common/Toast";
 import { LockClosedIcon } from "@heroicons/react/solid";
-import { useRef } from "react";
+import { useAuth } from "@hooks/useAuth";
+import { useRouter } from "next/router";
+import { useRef, useState } from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const rememberMeRef = useRef(null);
+  const auth = useAuth();
 
   const submit = (event) => {
     event.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     const remember = rememberMeRef.current.checked;
-    console.log({ email, password, remember });
+    console.log(remember);
+    setIsLoading(true);
+    auth
+      .signin(email, password)
+      .then(() => {
+        setIsLoading(false);
+        setError("");
+        router.push("/dashboard");
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        if (error.response.data.statusCode === 401)
+          setError("Credenciales inválidas");
+      });
   };
 
   return (
     <>
+      {isLoading && <Loading />}
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
+            {error}
             <img
               className="mx-auto h-12 w-auto"
               src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
@@ -111,6 +134,9 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+          {error && (
+            <Toast message={error} time="now" title="Oops!" type="error" />
+          )}
         </div>
       </div>
     </>
