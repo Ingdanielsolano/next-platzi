@@ -5,26 +5,39 @@ import Pagination from "@common/Pagination";
 import useFetch from "@hooks/useFetch";
 import endpoints from "@services/api";
 import { useState } from "react";
-
-// const people = [
-//   {
-//     name: "Jane Cooper",
-//     title: "Regional Paradigm Technician",
-//     department: "Optimization",
-//     role: "Admin",
-//     email: "jane.cooper@example.com",
-//     image:
-//       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-//   },
-// ];
+import { Chart } from "@common/Chart";
 
 export default function Dashboard() {
   const [page, setPage] = useState(0);
   const [loader, setLoader] = useState(false);
   const products = useFetch(endpoints.products.getProducts(5, page), setLoader);
+
+  const categoryNames = products?.map((product) => product.category.name);
+
+  const countOcurrences = (arr) =>
+    arr.reduce((prev, curr) => ((prev[curr] = ++prev[curr] || 1), prev), {});
+
+  const data = {
+    datasets: [
+      {
+        label: "Categories",
+        data: countOcurrences(categoryNames),
+        borderWidth: 2,
+        backgroundColor: [
+          "#ffbb11",
+          "#c0c0c0",
+          "%50AF95",
+          "#f3ba2f",
+          "#2a71d0",
+        ],
+      },
+    ],
+  };
+
   return (
     <>
       {loader && <Loading />}
+      <Chart className="mb-8 mt-2" chartData={data} />
       <div className="flex flex-col">
         <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
