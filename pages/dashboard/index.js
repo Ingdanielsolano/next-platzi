@@ -1,16 +1,25 @@
 /* eslint-disable @next/next/no-img-element */
 
+import { Chart } from "@common/Chart";
 import Loading from "@common/Loading";
 import Pagination from "@common/Pagination";
 import useFetch from "@hooks/useFetch";
+import usePagination from "@hooks/usePagination";
 import endpoints from "@services/api";
-import { useState } from "react";
-import { Chart } from "@common/Chart";
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
-  const [page, setPage] = useState(0);
+  const { pagination, setPagination, toggleHasMore } = usePagination();
   const [loader, setLoader] = useState(false);
-  const products = useFetch(endpoints.products.getProducts(5, page), setLoader);
+  const products = useFetch(
+    endpoints.products.getProducts(5, pagination.page),
+    setLoader
+  );
+
+  useEffect(() => {
+    if (pagination.hasMore !== products?.length > 0)
+      toggleHasMore(products?.length > 0);
+  }, [products, toggleHasMore, pagination]);
 
   const categoryNames = products?.map((product) => product.category.name);
 
@@ -125,11 +134,12 @@ export default function Dashboard() {
                   ))}
                 </tbody>
               </table>
-              <Pagination
-                page={page}
-                setPage={setPage}
-                hasMore={products.length > 0}
-              />
+              {pagination && setPagination && (
+                <Pagination
+                  pagination={pagination}
+                  setPagination={setPagination}
+                />
+              )}
             </div>
           </div>
         </div>

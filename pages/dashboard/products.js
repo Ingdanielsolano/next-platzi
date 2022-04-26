@@ -1,17 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
+import Alert from "@common/Alert";
 import Modal from "@common/Modal";
-import Pagination from "@common/Pagination";
 import FormProduct from "@components/FormProducts";
 import { PlusCircleIcon } from "@heroicons/react/solid";
+import useAlert from "@hooks/useAlert";
 import endpoints from "@services/api";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import useAlert from "@hooks/useAlert";
-import Alert from "@common/Alert";
+import { useEffect, useState } from "react";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
   const { alert, setAlert, toggleAlert } = useAlert();
 
@@ -139,11 +137,6 @@ export default function Products() {
                   ))}
                 </tbody>
               </table>
-              <Pagination
-                page={page}
-                setPage={setPage}
-                hasMore={products.length > 0}
-              />
             </div>
           </div>
         </div>
