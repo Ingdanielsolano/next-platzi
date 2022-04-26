@@ -13,7 +13,6 @@ const navigation = [
 const userNavigation = [
   { name: "Your Profile", href: "#" },
   { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
 ];
 
 function classNames(...classes) {
@@ -113,6 +112,15 @@ export default function Header() {
                               )}
                             </Menu.Item>
                           ))}
+                          <a
+                            href={"/"}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              auth.logOut();
+                            }}
+                          >
+                            Sign out
+                          </a>
                         </Menu.Items>
                       </Transition>
                     </Menu>
@@ -187,6 +195,16 @@ export default function Header() {
                       {item.name}
                     </Disclosure.Button>
                   ))}
+                  <button
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      auth.logout();
+                    }}
+                    className="text-left w-full block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
+                  >
+                    Sign out
+                  </button>
                 </div>
               </div>
             </Disclosure.Panel>
