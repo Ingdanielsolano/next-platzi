@@ -1,15 +1,28 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable @next/next/no-img-element */
 import Toast from "@common/Toast";
-import { addProduct } from "@services/api/products";
+import { addProduct, updateProduct } from "@services/api/products";
+import { useRouter } from "next/router";
 import { func } from "prop-types";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
-const FormProduct = ({ setAlert, setOpen }) => {
+const FormProduct = ({ setAlert, setOpen, product }) => {
+  const router = useRouter();
   const [formErrors, setFormErrors] = useState([]);
   const formRef = useRef(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageValue, setImageValue] = useState(null);
+  const [imagePreview, setImagePreview] = useState(
+    product?.images && product?.images[0]
+  );
+  const [imageValue, setImageValue] = useState(
+    product?.images && { name: product?.images[0] }
+  );
+
+  useEffect(() => {
+    if (product?.images) {
+      setImageValue({ name: product?.images[0] });
+      setImagePreview(product?.images[0]);
+    }
+  }, [product]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -32,26 +45,48 @@ const FormProduct = ({ setAlert, setOpen }) => {
 
     if (actualErrors.length > 0) return setFormErrors(actualErrors);
 
-    addProduct(data)
-      .then((response) => {
-        console.log({ response });
-        setAlert({
-          active: true,
-          message: "Product saved",
-          type: "success",
-          autoClose: true,
+    if (!product)
+      addProduct(data)
+        .then((response) => {
+          console.log({ response });
+          setAlert({
+            active: true,
+            message: "Product saved",
+            type: "success",
+            autoClose: true,
+          });
+          setOpen(false);
+        })
+        .catch((error) => {
+          setAlert({
+            active: true,
+            message: error.message,
+            type: "error",
+            autoClose: true,
+          });
+          setOpen(false);
         });
-        setOpen(false);
-      })
-      .catch((error) => {
-        setAlert({
-          active: true,
-          message: error.message,
-          type: "error",
-          autoClose: true,
+    else
+      updateProduct(product.id, data)
+        .then(() => {
+          router.push("/dashboard/products");
+          setAlert({
+            active: true,
+            message: "Product updated",
+            type: "success",
+            autoClose: true,
+          });
+          setOpen(false);
+        })
+        .catch((error) => {
+          setAlert({
+            active: true,
+            message: error.message,
+            type: "error",
+            autoClose: true,
+          });
+          setOpen(false);
         });
-        setOpen(false);
-      });
 
     console.log(data);
   };
@@ -79,6 +114,7 @@ const FormProduct = ({ setAlert, setOpen }) => {
                   }
                   onInput={(e) => e.target.setCustomValidity("")}
                   className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  defaultValue={product?.title}
                 />
               </div>
               <div className="col-span-6 sm:col-span-3">
@@ -100,6 +136,7 @@ const FormProduct = ({ setAlert, setOpen }) => {
                     )
                   }
                   onInput={(e) => e.target.setCustomValidity("")}
+                  defaultValue={product?.price}
                   className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                 />
               </div>
@@ -115,6 +152,7 @@ const FormProduct = ({ setAlert, setOpen }) => {
                   name="category"
                   autoComplete="category-name"
                   className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  defaultValue={product?.category}
                 >
                   <option value="1">Clothes</option>
                   <option value="2">Electronics</option>
@@ -142,6 +180,7 @@ const FormProduct = ({ setAlert, setOpen }) => {
                     e.target.setCustomValidity("The description is required")
                   }
                   onInput={(e) => e.target.setCustomValidity("")}
+                  defaultValue={product?.description}
                 />
               </div>
               <div className="col-span-6">

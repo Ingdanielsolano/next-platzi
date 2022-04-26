@@ -8,6 +8,7 @@ import endpoints from "@services/api";
 import { deleteProduct } from "@services/api/products";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -151,12 +152,14 @@ export default function Products() {
                           className="flex-shrink-0 h-6 w-6 text-gray-400 cursor-pointer"
                           onClick={() => handleClose(product.id, product.title)}
                         />
-                        {/* <a
-                          href="/edit"
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link
+                          href={`edit/${product.id}`}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
-                        </a> */}
+                        </Link>
                       </td>
                     </tr>
                   ))}
