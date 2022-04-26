@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Modal from "@common/Modal";
 import Pagination from "@common/Pagination";
+import FormProduct from "@components/FormProducts";
 import { PlusCircleIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 
@@ -130,7 +131,7 @@ export default function Products() {
         </div>
       </div>
       <Modal open={open} setOpen={setOpen}>
-        <h1>Hola mundo</h1>
+        <FormProduct />
       </Modal>
     </>
   );

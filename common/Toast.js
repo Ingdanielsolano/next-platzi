@@ -8,23 +8,20 @@ const toastTypes = {
   info: (...props) => <InfoToast {...props} />,
   success: (...props) => <SuccessToast {...props} />,
   danger: (...props) => <DangerToast {...props} />,
-  error: ({ message, time, title }) => (
-    <ErrorToast message={message} title={title} time={time} />
-  ),
+  error: ({ message, title }) => <ErrorToast message={message} title={title} />,
 };
 
 /**
  * Random Component
  * @augments {Component<Props, State>}
  */
-const Toast = ({ type, message, time, title }) => (
+const Toast = ({ type, message, title }) => (
   <div className="flex flex-col justify-center">
-    {toastTypes[type]({ message, time, title })}
+    {toastTypes[type]({ message, title })}
   </div>
 );
 
 Toast.propTypes = {
-  time: string.isRequired,
   title: string.isRequired,
   message: string.isRequired,
   /**Types: success | error | info | danger */
