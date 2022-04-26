@@ -2,9 +2,10 @@
 import Alert from "@common/Alert";
 import Modal from "@common/Modal";
 import FormProduct from "@components/FormProducts";
-import { PlusCircleIcon } from "@heroicons/react/solid";
+import { PlusCircleIcon, XCircleIcon } from "@heroicons/react/solid";
 import useAlert from "@hooks/useAlert";
 import endpoints from "@services/api";
+import { deleteProduct } from "@services/api/products";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,26 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [open, setOpen] = useState(false);
   const { alert, setAlert, toggleAlert } = useAlert();
+
+  const handleClose = (id, name) => {
+    deleteProduct(id)
+      .then(() =>
+        setAlert({
+          active: true,
+          autoClose: true,
+          message: `Product ${id}-${name} deleted`,
+          type: "success",
+        })
+      )
+      .catch((error) =>
+        setAlert({
+          active: true,
+          autoClose: true,
+          message: `Product ${id} not deleted ${error.message}`,
+          type: "error",
+        })
+      );
+  };
 
   useEffect(() => {
     async function getProducts() {
@@ -126,12 +147,16 @@ export default function Products() {
                         {product.id}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a
+                        <XCircleIcon
+                          className="flex-shrink-0 h-6 w-6 text-gray-400 cursor-pointer"
+                          onClick={() => handleClose(product.id, product.title)}
+                        />
+                        {/* <a
                           href="/edit"
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
-                        </a>
+                        </a> */}
                       </td>
                     </tr>
                   ))}
