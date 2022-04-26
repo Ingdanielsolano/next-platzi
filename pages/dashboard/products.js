@@ -3,15 +3,33 @@ import Modal from "@common/Modal";
 import Pagination from "@common/Pagination";
 import FormProduct from "@components/FormProducts";
 import { PlusCircleIcon } from "@heroicons/react/solid";
-import { useState } from "react";
+import endpoints from "@services/api";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import useAlert from "@hooks/useAlert";
+import Alert from "@common/Alert";
 
 export default function Products() {
-  const [products] = useState([]);
+  const [products, setProducts] = useState([]);
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
+  const { alert, setAlert, toggleAlert } = useAlert();
+
+  useEffect(() => {
+    async function getProducts() {
+      const response = await axios.get(endpoints.products.getAllProducts);
+      setProducts(response.data);
+    }
+    try {
+      getProducts();
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   return (
     <>
+      <Alert alert={alert} handleClose={toggleAlert} />
       <div className="lg:flex lg:items-center lg:justify-between">
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
@@ -131,7 +149,7 @@ export default function Products() {
         </div>
       </div>
       <Modal open={open} setOpen={setOpen}>
-        <FormProduct />
+        <FormProduct setAlert={setAlert} setOpen={setOpen} />
       </Modal>
     </>
   );

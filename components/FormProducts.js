@@ -1,12 +1,15 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable @next/next/no-img-element */
 import Toast from "@common/Toast";
+import { addProduct } from "@services/api/products";
+import { func } from "prop-types";
 import { useRef, useState } from "react";
 
-export default function FormProduct() {
-  const [errors, setErrors] = useState([]);
+const FormProduct = ({ setAlert, setOpen }) => {
+  const [formErrors, setFormErrors] = useState([]);
   const formRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageValue, setImageValue] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -16,7 +19,7 @@ export default function FormProduct() {
       price: parseInt(formData.get("price")),
       description: formData.get("description"),
       categoryId: parseInt(formData.get("category")),
-      images: [formData.get("images").name],
+      images: [imageValue.name],
     };
     const actualErrors = [];
     if (!data.title || data.title === "")
@@ -27,7 +30,28 @@ export default function FormProduct() {
     if (!data.images.length === 0 || data.images[0] === "")
       actualErrors.push("Image is required");
 
-    if (actualErrors.length > 0) return setErrors(actualErrors);
+    if (actualErrors.length > 0) return setFormErrors(actualErrors);
+
+    addProduct(data)
+      .then((response) => {
+        console.log({ response });
+        setAlert({
+          active: true,
+          message: "Product saved",
+          type: "success",
+          autoClose: true,
+        });
+        setOpen(false);
+      })
+      .catch((error) => {
+        setAlert({
+          active: true,
+          message: error.message,
+          type: "error",
+          autoClose: true,
+        });
+        setOpen(false);
+      });
 
     console.log(data);
   };
@@ -156,11 +180,12 @@ export default function FormProduct() {
                               name="images"
                               type="file"
                               className="sr-only"
-                              onChange={(event) =>
+                              onChange={(event) => {
                                 setImagePreview(
                                   URL.createObjectURL(event.target.files[0])
-                                )
-                              }
+                                );
+                                setImageValue(event.target.files[0]);
+                              }}
                             />
                           </label>
                           <p className="pl-1">or drag and drop</p>
@@ -212,7 +237,7 @@ export default function FormProduct() {
           </div>
         </div>
       </form>
-      {errors.map((error, i) => (
+      {formErrors.map((error, i) => (
         <Toast
           key={`Error-key-${i}`}
           message={error}
@@ -222,4 +247,11 @@ export default function FormProduct() {
       ))}
     </>
   );
-}
+};
+
+FormProduct.propTypes = {
+  setOpen: func.isRequired,
+  setAlert: func.isRequired,
+};
+
+export default FormProduct;
